@@ -2,6 +2,8 @@
 <link rel="import" href="../materializecss-styles/materializecss-styles.html">
 <link rel="import" href="../hax-body-behaviors/hax-body-behaviors.html">
 <link rel="import" href="../schema-behaviors/schema-behaviors.html">
+<link rel="import" href="../responsive-grid/responsive-grid-row.html">
+<link rel="import" href="../responsive-grid/responsive-grid-col.html">
 <!--
 `grid-plate`
 A LRN element
@@ -21,7 +23,17 @@ A LRN element
         display: block;
       }
     </style>
-    <h2>[[title]]</h2>
+    <responsive-grid-row>
+      <responsive-grid-col xl$="[[size.area1]]" lg$="[[size.area1]]" md$="[[size.area1]]" sm$="[[size.area1]]" xs$="[[size.area1]]">
+        <slot name="area1"></slot>
+      </responsive-grid-col>
+      <responsive-grid-col xl$="[[size.area2]]" lg$="[[size.area2]]" md$="[[size.area2]]" sm$="[[size.area2]]" xs$="[[size.area2]]">
+        <slot name="area2"></slot>
+      </responsive-grid-col>
+      <responsive-grid-col xl$="[[size.area3]]" lg$="[[size.area3]]" md$="[[size.area3]]" sm$="[[size.area3]]" xs$="[[size.area3]]">
+        <slot name="area3"></slot>
+      </responsive-grid-col>
+    </responsive-grid-row>
   </template>
 
   <script>
@@ -31,11 +43,48 @@ A LRN element
       behaviors: [HAXBehaviors.PropertiesBehaviors, MaterializeCSSBehaviors.ColorBehaviors, SchemaBehaviors.Schema],
       properties: {
         /**
-         * Title
+         * areas
          */
-        title: {
-          type: String,
+        areas: {
+          type: Number,
+          value: 3,
         },
+        /**
+         * [size description]
+         * @type {Object}
+         */
+        size: {
+          type: Object,
+          computed: '_computeSize(areas)',
+        },
+      },
+      /**
+       * Get size relative to areas in a base 12 grid
+       */
+      _computeSize: function(areas) {
+        switch (areas) {
+          case 1:
+            return {
+              'area1': 12,
+              'area2': 12,
+              'area3': 12,
+            };
+          break;
+          case 2:
+            return {
+              'area1': 6,
+              'area2': 6,
+              'area3': 12,
+            };
+          break;
+          case 3:
+            return {
+              'area1': 4,
+              'area2': 4,
+              'area3': 4,
+            };
+          break;
+        }
       },
       /**
        * Attached to the DOM, now fire.
@@ -47,7 +96,7 @@ A LRN element
           'canPosition': true,
           'canEditSource': false,
           'gizmo': {
-            'title': 'Sample gizmo',
+            'title': 'Grid plate',
             'description': 'The user will be able to see this for selection in a UI.',
             'icon': 'av:play-circle-filled',
             'color': 'grey',
