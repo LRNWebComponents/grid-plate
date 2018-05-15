@@ -1,7 +1,5 @@
 <link rel="import" href="../polymer/polymer.html">
-<link rel="import" href="../materializecss-styles/materializecss-styles.html">
 <link rel="import" href="../hax-body-behaviors/hax-body-behaviors.html">
-<link rel="import" href="../schema-behaviors/schema-behaviors.html">
 <link rel="import" href="../responsive-grid/responsive-grid-row.html">
 <link rel="import" href="../responsive-grid/responsive-grid-col.html">
 <!--
@@ -40,7 +38,7 @@ A LRN element
     Polymer({
 
       is: 'grid-plate',
-      behaviors: [HAXBehaviors.PropertiesBehaviors, MaterializeCSSBehaviors.ColorBehaviors, SchemaBehaviors.Schema],
+      behaviors: [HAXBehaviors.PropertiesBehaviors],
       properties: {
         /**
          * areas
@@ -50,8 +48,7 @@ A LRN element
           value: 3,
         },
         /**
-         * [size description]
-         * @type {Object}
+         * Size description
          */
         size: {
           type: Object,
@@ -95,39 +92,22 @@ A LRN element
           'canScale': true,
           'canPosition': true,
           'canEditSource': false,
-          'gizmo': {
-            'title': 'Grid plate',
-            'description': 'The user will be able to see this for selection in a UI.',
-            'icon': 'av:play-circle-filled',
-            'color': 'grey',
-            'groups': ['Video', 'Media'],
-            'handles': [
-              {
-                'type': 'video',
-                'url': 'source'
-              }
-            ],
-            'meta': {
-              'author': 'Your organization on github'
-            }
-          },
           'settings': {
             'quick': [
               {
-                'property': 'title',
-                'title': 'Title',
-                'description': 'The title of the element',
-                'inputMethod': 'textfield',
-                'icon': 'editor:title',
+                'property': 'areas',
+                'title': 'Grid setting',
+                'description': 'Number of grid areas',
+                'inputMethod': 'number',
+                'icon': 'image:grid-on',
               },
             ],
             'configure': [
               {
-                'property': 'title',
-                'title': 'Title',
-                'description': 'The title of the element',
-                'inputMethod': 'textfield',
-                'icon': 'editor:title',
+                'property': 'areas',
+                'title': 'Grid setting',
+                'description': 'Number of grid areas',
+                'inputMethod': 'number',
               },
             ],
             'advanced': [
