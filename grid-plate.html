@@ -99,8 +99,6 @@ A grid plate based on a layout that manipulates it.
         }
         for (var i in items) {
           let col = Number(i)+1;
-          console.log(col);
-          console.log('col' + col + '_xl');
           this['col' + col + '_xl'] = items[i];
           this['col' + col + '_lg'] = items[i];
           this['col' + col + '_md'] = items[i];
@@ -126,14 +124,14 @@ A grid plate based on a layout that manipulates it.
               // the fallback holding area based on misses in
               // the other 3. Template + "slots being there"
               // will help make this calculation
-              console.log(node.getAttribute('slot'));
+              //console.log(node.getAttribute('slot'));
             });
           }
           // if we dropped nodes via the UI (delete event basically)
           if (info.removedNodes.length > 0) {
             // handle removing items... not sure we need to do anything here
             info.removedNodes.map((node) => {
-                console.log(node);
+              //console.log(node);
             });
           }
         });
