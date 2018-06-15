@@ -1,5 +1,6 @@
 <link rel="import" href="../polymer/polymer.html">
 <link rel="import" href="../hax-body-behaviors/hax-body-behaviors.html">
+<link rel="import" href="../simple-colors/simple-colors.html">
 <link rel="import" href="../responsive-grid/responsive-grid-row.html">
 <link rel="import" href="../responsive-grid/responsive-grid-col.html">
 <!--
@@ -28,22 +29,22 @@ A grid plate based on a layout that manipulates it.
     </style>
     <responsive-grid-row gutter="0">
       <template is="dom-if" if="[[!hideCol1]]">
-      <responsive-grid-col xl$="[[col1_xl]]" lg$="[[col1_lg]]" md$="[[col1_md]]" sm$="[[col1_sm]]" xs$="[[col1_xs]]">
+      <responsive-grid-col id="col1" style$="background-color:[[__col1Color]];" xl$="[[col1_xl]]" lg$="[[col1_lg]]" md$="[[col1_md]]" sm$="[[col1_sm]]" xs$="[[col1_xs]]">
         <slot name="col-1"></slot>
       </responsive-grid-col>
       </template>
       <template is="dom-if" if="[[!hideCol2]]">
-      <responsive-grid-col xl$="[[col2_xl]]" lg$="[[col2_lg]]" md$="[[col2_md]]" sm$="[[col2_sm]]" xs$="[[col2_xs]]">
+      <responsive-grid-col id="col2" style$="background-color:[[__col2Color]];" xl$="[[col2_xl]]" lg$="[[col2_lg]]" md$="[[col2_md]]" sm$="[[col2_sm]]" xs$="[[col2_xs]]">
         <slot name="col-2"></slot>
       </responsive-grid-col>
       </template>
       <template is="dom-if" if="[[!hideCol3]]">
-      <responsive-grid-col xl$="[[col3_xl]]" lg$="[[col3_lg]]" md$="[[col3_md]]" sm$="[[col3_sm]]" xs$="[[col3_xs]]">
+      <responsive-grid-col id="col3" style$="background-color:[[__col3Color]];" xl$="[[col3_xl]]" lg$="[[col3_lg]]" md$="[[col3_md]]" sm$="[[col3_sm]]" xs$="[[col3_xs]]">
         <slot name="col-3"></slot>
       </responsive-grid-col>
       </template>
       <template is="dom-if" if="[[!hideCol4]]">
-      <responsive-grid-col xl$="[[col4_xl]]" lg$="[[col4_lg]]" md$="[[col4_md]]" sm$="[[col4_sm]]" xs$="[[col4_xs]]">
+      <responsive-grid-col id="col4" style$="background-color:[[__col4Color]];" xl$="[[col4_xl]]" lg$="[[col4_lg]]" md$="[[col4_md]]" sm$="[[col4_sm]]" xs$="[[col4_xs]]">
         <slot name="col-4"></slot>
       </responsive-grid-col>
       </template>
@@ -55,7 +56,7 @@ A grid plate based on a layout that manipulates it.
   <script>
     Polymer({
       is: 'grid-plate',
-      behaviors: [HAXBehaviors.PropertiesBehaviors],
+      behaviors: [HAXBehaviors.PropertiesBehaviors, window.simpleColorsBehaviors],
       properties: {
         /**
          * Predefined layouts
@@ -65,12 +66,81 @@ A grid plate based on a layout that manipulates it.
           value: '12',
           observer: '_layoutChanged',
         },
+        /**
+         * Color handling can happen two different ways
+         * either as a whole like blue/blue/blue/blue or
+         * per column.
+         */
+        colors: {
+          type: String,
+          value: '',
+        },
+        col1Color: {
+          type: String,
+          value: '',
+        },
+        col2Color: {
+          type: String,
+          value: '',
+        },
+        col3Color: {
+          type: String,
+          value: '',
+        },
+        col4Color: {
+          type: String,
+          value: '',
+        },
+        /**
+         * Actually applies the colors correctly between the two methods
+         */
+        _colors: {
+          type: String,
+          computed: '_colorCreation(colors, col1Color, col2Color, col3Color, col4Color)',
+          observer: '_colColors',
+        },
+      },
+      /**
+       * Notice colors have changed
+       */
+      _colorCreation: function (colors, col1, col2, col3, col4) {
+        let items = colors.split('/');
+        let cols = [col1, col2, col3, col4];
+        // merge the two
+        for (var i in cols) {
+          if (cols[i] != '') {
+            items[i] = cols[i];
+          }
+        }
+        return items;
+      },
+      /**
+       * Split a color value based on referencing the code
+       * as color-number for name of the color hypthen numberical array position
+       */
+      splitColor: function(value) {
+        if (value != '' && typeof this.__hexCodes[value] !== typeof undefined) {
+          return this.__hexCodes[value][this.__hexCodes[value].length-1];
+        }
+        return value;
+      },
+      /**
+       * Generate the correct color code form the column
+       */
+      _colColors: function(newValue, oldValue) {
+        // don't bother with things that are null
+        if (newValue != '') {
+          for (var i in newValue) {
+            this['__col' + (parseInt(i)+1) + 'Color'] = this.splitColor(newValue[i]);
+          }
+        }
       },
       /**
        * See layout has changed, update all the possible data values
        */
       _layoutChanged: function(layout) {
         let items = layout.split("/");
+        this.__colCount = items.length;
         switch (items.length) {
           case 1:
             this.hideCol1 = false;
@@ -135,6 +205,11 @@ A grid plate based on a layout that manipulates it.
             });
           }
         });
+        // quickly build a basic selection array from known color names
+        var colorOptions = [];
+        for (var i in this.__hexCodes) {
+          colorOptions[i] = i;
+        }
         // Establish hax property binding
         let props = {
           'canScale': true,
@@ -158,11 +233,40 @@ A grid plate based on a layout that manipulates it.
                   '3/3/3/3' : '4 cols, 25% each',
                 },
               },
+              {
+                'property': 'colColor1',
+                'title': 'Col 1 color',
+                'description': 'Color for the 1st column',
+                'inputMethod': 'select',
+                'options': colorOptions,
+              },
+              {
+                'property': 'colColor2',
+                'title': 'Col 2 color',
+                'description': 'Color for the 1st column',
+                'inputMethod': 'select',
+                'options': colorOptions,
+              },
+              {
+                'property': 'colColor3',
+                'title': 'Col 3 color',
+                'description': 'Color for the 1st column',
+                'inputMethod': 'select',
+                'options': colorOptions,
+              },
+              {
+                'property': 'colColor4',
+                'title': 'Col 4 color',
+                'description': 'Color for the 1st column',
+                'inputMethod': 'select',
+                'options': colorOptions,
+              },
             ],
             'advanced': [
             ]
           }
         };
+
         this.setHaxProperties(props);
       },
     });
