@@ -49,6 +49,7 @@ A grid plate based on a layout that manipulates it.
         outline: 2px dotted #d1d1d1;
         outline-offset: 2px;
         background-color:rgba(240, 240, 240, .2);
+        cursor: move !important;
       }
       paper-icon-button {
         display: none;
@@ -58,6 +59,8 @@ A grid plate based on a layout that manipulates it.
         outline: none;
         width: 20px;
         height: 20px;
+        background-color: #EEEEEE;
+        border-radius: 50%;
       }
       paper-icon-button.active {
         display: block;
@@ -252,11 +255,13 @@ A grid plate based on a layout that manipulates it.
        * Focus / tab / click event normalization
        */
       _focusIn: function (e) {
-        var normalizedEvent = Polymer.dom(e);
-        var local = normalizedEvent.localTarget;
-        // only activate if we touch something that's in the slot of the grid plate
-        if (Polymer.dom(local).parentNode === this) {
-          this.__activeItem = local;
+        if (this.editMode) {
+          var normalizedEvent = Polymer.dom(e);
+          var local = normalizedEvent.localTarget;
+          // only activate if we touch something that's in the slot of the grid plate
+          if (Polymer.dom(local).parentNode === this) {
+            this.__activeItem = local;
+          }
         }
       },
       /**
@@ -386,8 +391,7 @@ A grid plate based on a layout that manipulates it.
         var local = normalizedEvent.localTarget;
         // if we have a slot on what we dropped into then we need to mirror that item
         // and place ourselves below it in the DOM
-        if (local.getAttribute('slot') != null) {
-          console.log('slot placement');
+        if (typeof local !== typeof undefined && local.getAttribute('slot') != null) {
           this.__activeItem.setAttribute('slot', local.getAttribute('slot'));
           Polymer.dom(this).insertBefore(this.__activeItem, local);
         }
@@ -528,6 +532,8 @@ A grid plate based on a layout that manipulates it.
        * Attached to the DOM, now fire.
        */
       attached: function() {
+        // listen for HAX if it's around
+        document.body.addEventListener('hax-store-property-updated', this._haxStorePropertyUpdated.bind(this));
         // mutation observer that ensures state of hax applied correctly
         this._observer = Polymer.dom(this).observeNodes(function(info) {
           // MAKE SURE WE KNOW WHAT JUST GOT ADDED HERE
@@ -616,6 +622,17 @@ A grid plate based on a layout that manipulates it.
         };
 
         this.setHaxProperties(props);
+      },
+      /**
+       * Store updated, sync.
+       */
+      _haxStorePropertyUpdated: function(e) {
+        if (e.detail && typeof e.detail.value !== typeof undefined && e.detail.property) {
+          if (typeof e.detail.value === 'object') {
+            this.set(e.detail.property, null);
+          }
+          this.set(e.detail.property, e.detail.value);
+        }
       },
     });
   </script>
